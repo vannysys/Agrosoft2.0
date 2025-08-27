@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+AUTH_USER_MODEL = 'usuarios.Usuario'
+
 # Configurar API key del clima directamente
 os.environ.setdefault('OPENWEATHER_API_KEY', '3faff5e1a4b40f2e39babbe38f98365e')
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
      'productores',
+     'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -79,10 +82,15 @@ WSGI_APPLICATION = 'agrosoft.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'produccion',
+        'USER': 'postgres',
+        'PASSWORD': '123456789',
+        'HOST': 'localhost',   # o la IP de tu servidor
+        'PORT': '5432',        # puerto por defecto de PostgreSQL
     }
 }
+
 
 
 # Password validation
@@ -121,8 +129,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'karin30arenales@gmail.com'  # Cambiar por tu correo
+EMAIL_HOST_PASSWORD = 'wuxt vupc ojwo cfys'    # Cambiar por tu contraseña de app
+DEFAULT_FROM_EMAIL = 'tu-correo@gmail.com'

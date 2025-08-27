@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AgroSoft - Sistema Inteligente de Recomendaciones Agrícolas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2E7D32 0%, #388E3C 50%, #4CAF50 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        margin: -25px -25px 50px -25px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none; /* ✅ Esto evita que bloquee clics */
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        opacity: 0.95;
+    }
+    
+    .hero-buttons {
+        margin-top: 30px;
+    }
+    
+    .btn-hero {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        margin: 0 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-hero {
+        background: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        color: white;
+    }
+    
+    .btn-primary-hero:hover {
+        background: white;
+        color: #2E7D32;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .btn-outline-hero {
+        border: 2px solid white;
+        color: white;
+        background: transparent;
+    }
+    
+    .btn-outline-hero:hover {
+        background: white;
+        color: #2E7D32;
+        transform: translateY(-2px);
+    }
+    
+    .features-section {
+        padding: 80px 0;
+    }
+    
+    .feature-card {
+        text-align: center;
+        padding: 30px;
+        border-radius: 15px;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        color: #4CAF50;
+        margin-bottom: 20px;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2E7D32;
+    }
+    
+    .stats-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 60px 0;
+        margin: 50px -25px;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2E7D32;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    
+    .cta-section {
+        background: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .btn-hero {
+            padding: 12px 25px;
+            margin: 10px 5px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container-custom">
+        <h1 class="hero-title">Transforma tu Agricultura con Inteligencia Artificial</h1>
+        <p class="hero-subtitle">Sistema de recomendaciones agrícolas inteligentes que maximiza tu productividad y rentabilidad</p>
+        
+        <div class="hero-buttons">
+            <a href="{% url 'registro' %}" class="btn btn-hero btn-primary-hero">
+                <i class="bi bi-person-plus me-2"></i>Comenzar Ahora
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-hero btn-outline-hero">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section">
+    <div class="container-custom">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-4 fw-bold text-success mb-3">¿Qué ofrece AgroSoft?</h2>
+                <p class="lead text-muted">Herramientas inteligentes para modernizar tu producción agrícola</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h3 class="feature-title">Recomendaciones Inteligentes</h3>
+                    <p class="text-muted">Sugerencias de cultivos basadas en clima, mercado y condiciones del suelo para maximizar tu rentabilidad.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h3 class="feature-title">Análisis de Mercado</h3>
+                    <p class="text-muted">Datos en tiempo real de precios de mercado y tendencias para tomar decisiones informadas.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-cloud-sun"></i>
+                    </div>
+                    <h3 class="feature-title">Pronóstico Climático</h3>
+                    <p class="text-muted">Integración con datos meteorológicos para planificar siembras y cosechas de manera óptima.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- CTA Section -->
+<div class="cta-section">
+    <div class="container-custom">
+        <h2 class="display-5 fw-bold text-success mb-4">¿Listo para transformar tu agricultura?</h2>
+        <p class="lead text-muted mb-4">Únete a cientos de agricultores que ya están maximizando sus cosechas con AgroSoft</p>
+        <a href="{% url 'registro' %}" class="btn btn-success btn-lg px-5 py-3">
+            <i class="bi bi-rocket-takeoff me-2"></i>Empezar Gratis
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,10 +1,11 @@
 from django.contrib import admin
-from django.urls import path
-from productores import views
+from django.urls import path, include
+from usuarios import views as usuarios_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.recomendar_productos, name='inicio'),  # Página principal
-    path('recomendar/', views.recomendar_productos, name='recomendar_productos'),
-    path('api/precios/', views.api_precios_sipsa, name='api_precios_sipsa'),  # API endpoint
+    path('', usuarios_views.home, name='inicio'),  # Página principal ahora apunta a usuarios home
+    path('usuarios/', include('usuarios.urls')),  # Incluir URLs de usuarios
+    path('api/', include('usuarios.urls')),  # Incluir URLs de usuarios para la API
+    path('recomendar/', include('productores.urls')),  # Incluir URLs de productores
 ]

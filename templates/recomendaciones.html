@@ -1,33 +1,32 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSoft - Recomendaciones de Cultivos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { text-align: center; color: #2c5530; margin-bottom: 30px; }
-        .form-section { background: #e8f5e8; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2c5530; }
-        select, input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
-        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        .stats { display: flex; justify-content: space-around; margin: 20px 0; }
-        .stat-card { background: #f0f8f0; padding: 15px; border-radius: 5px; text-align: center; min-width: 150px; }
-        .error { color: red; background: #ffe6e6; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #4CAF50; color: white; }
-        tr:hover { background-color: #f5f5f5; }
-        .precio { font-weight: bold; color: #2c5530; }
-        .tendencia-subiendo { color: #4CAF50; }
-        .tendencia-bajando { color: #f44336; }
-        .tendencia-estable { color: #ff9800; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}AgroSoft - Recomendaciones de Cultivos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header { text-align: center; color: #2c5530; margin-bottom: 30px; }
+    .form-section { background: #e8f5e8; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #2c5530; }
+    select, input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+    button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+    .stat-card { background: #f0f8f0; padding: 15px; border-radius: 5px; text-align: center; min-width: 150px; }
+    .error { color: red; background: #ffe6e6; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background-color: #4CAF50; color: white; }
+    tr:hover { background-color: #f5f5f5; }
+    .precio { font-weight: bold; color: #2c5530; }
+    .tendencia-subiendo { color: #4CAF50; }
+    .tendencia-bajando { color: #f44336; }
+    .tendencia-estable { color: #ff9800; }
+</style>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="header">
             <h1>🌱 AgroSoft - Recomendaciones de Cultivos</h1>
@@ -170,5 +169,4 @@
             </div>
         {% endif %}
     </div>
-</body>
-</html>
+{% endblock %}

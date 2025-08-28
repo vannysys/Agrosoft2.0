@@ -17,6 +17,10 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.urls import reverse
+from django.core.paginator import Paginator
+import json
+from django.utils.safestring import mark_safe
+
 
 # Función auxiliar para verificar si el usuario es admin
 def es_admin(user):
@@ -36,10 +40,13 @@ def admin_dashboard(request):
     # Últimas solicitudes
     ultimas_solicitudes = SolicitudRecomendacion.objects.all().order_by('-fecha')[:5]
     
-    # Datos para gráficos
-    cultivos_populares = SolicitudRecomendacion.objects.values('cultivo_deseado').annotate(
-        total=Count('id')
-    ).order_by('-total')[:5]
+    # Solo 3 cultivos más populares
+    cultivos_populares = (
+        SolicitudRecomendacion.objects
+        .values('cultivo_deseado')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:3]   # 👈 límite de 3
+    )
     
     context = {
         'total_usuarios': total_usuarios,
@@ -47,9 +54,10 @@ def admin_dashboard(request):
         'total_solicitudes': total_solicitudes,
         'solicitudes_pendientes': solicitudes_pendientes,
         'ultimas_solicitudes': ultimas_solicitudes,
-        'cultivos_populares': cultivos_populares,
+        'cultivos_populares': list(cultivos_populares),
     }
     return render(request, 'admin_dashboard.html', context)
+
 
 # HU4 - Gestionar usuarios
 @login_required
@@ -168,25 +176,58 @@ def reportes_graficos(request):
 @user_passes_test(es_admin)
 def produccion_proyectada(request):
     """Vista para calcular producción proyectada"""
-    # Primera parte: cálculos básicos
+    producto_seleccionado = request.GET.get('producto')
+    hectareas = request.GET.get('hectareas', 1)
+
     cultivos_activos = SolicitudRecomendacion.objects.filter(
         estado='procesada'
     ).select_related('agricultor')
-    
-    # Proyecciones por cultivo
+
     proyecciones = []
     for cultivo in cultivos_activos:
         if cultivo.cantidad and cultivo.precio_estimado:
             ingreso_proyectado = float(cultivo.cantidad) * float(cultivo.precio_estimado)
             proyecciones.append({
-                'cultivo': cultivo,
+                'producto': cultivo,
+                'produccion_total': cultivo.cantidad,
+                'precio_unidad': cultivo.precio_estimado,
                 'ingreso_proyectado': ingreso_proyectado,
-                'rendimiento_estimado': cultivo.cantidad * 0.9  # 90% de rendimiento estimado
+                'rendimiento_estimado': cultivo.cantidad * 0.9
             })
-    
+
+    # 🔎 Filtrar si hay producto seleccionado
+    if producto_seleccionado:
+        proyecciones = [p for p in proyecciones if p['producto'].cultivo_deseado == producto_seleccionado]
+
+    # 📑 Paginación
+    from django.core.paginator import Paginator
+    paginator = Paginator(proyecciones, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # 📊 Datos para gráfico
+    labels = [p['producto'].cultivo_deseado for p in proyecciones]
+    ingresos = [p['ingreso_proyectado'] for p in proyecciones]
+    cantidades = [p['produccion_total'] for p in proyecciones]
+    colores = ["rgba(75, 192, 192, 0.8)" for _ in proyecciones]  # color fijo, puedes randomizar si quieres
+
+    datos_grafico = {
+        'labels': mark_safe(json.dumps(labels)),
+        'ingresos': mark_safe(json.dumps(ingresos)),
+        'cantidades': mark_safe(json.dumps(cantidades)),
+        'colores': mark_safe(json.dumps(colores)),
+    }
+
     context = {
-        'proyecciones': proyecciones,
-        'total_proyectado': sum(p['ingreso_proyectado'] for p in proyecciones)
+        'productos_disponibles': cultivos_activos,
+        'producto_seleccionado': producto_seleccionado,
+        'cantidad_hectareas': hectareas,
+        'proyecciones': page_obj,
+        'page_obj': page_obj,
+        'total_proyectado': sum(p['ingreso_proyectado'] for p in proyecciones),
+        'total_cultivos': len(proyecciones),
+        'rendimiento_promedio': sum(p['rendimiento_estimado'] for p in proyecciones) / len(proyecciones) if proyecciones else 0,
+        'datos_grafico': datos_grafico,
     }
     return render(request, 'produccion_proyectada.html', context)
 

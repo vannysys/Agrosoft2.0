@@ -1,215 +1,126 @@
-{% extends "base.html" %}
+{% extends 'base_admin.html' %}
 {% load static %}
 
-{% block title %}AgroSoft - Dashboard Principal{% endblock %}
+{% block title %}Reportes Gráficos - AgroSoft{% endblock %}
 
 {% block content %}
-    <!-- Contenido para usuarios autenticados -->
-    <div class="container" style="max-width: 1200px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001;">
-        <h2>Bienvenido de vuelta, {{ user.username }}</h2>
-        <!-- Gráficos de producción -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Tendencias de Productos</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="tendenciasChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">Reportes Gráficos</h1>
         </div>
-        <!-- Removed duplicate canvas for "Tendencias de Precios" -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        
-        <p class="lead">Estamos contentos de tenerte de vuelta en AgroSoft</p>
-
-        <!-- Filtros para gráficas -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Filtros de Mercado</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="filtrosForm" class="row g-3">
-                            <div class="col-md-4">
-                                <label for="municipio" class="form-label">Municipio</label>
-                                <select class="form-select" id="municipio" name="municipio">
-                                    <option value="">Todos los municipios</option>
-                                    <option value="Facatativá">Facatativá</option>
-                                    <option value="Madrid">Madrid</option>
-                                    <option value="Mosquera">Mosquera</option>
-                                    <option value="Funza">Funza</option>
-                                    <option value="Bogotá">Bogotá</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="producto" class="form-label">Producto</label>
-                                <select class="form-select" id="producto" name="producto">
-                                    <option value="">Todos los productos</option>
-                                    <option value="PAPA CRIOLLA">Papa Criolla</option>
-                                    <option value="PAPA PASTUSA">Papa Pastusa</option>
-                                    <option value="ZANAHORIA">Zanahoria</option>
-                                    <option value="CEBOLLA CABEZONA">Cebolla Cabezona</option>
-                                    <option value="TOMATE">Tomate</option>
-                                    <option value="LECHUGA">Lechuga</option>
-                                    <option value="REPOLLO">Repollo</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-filter"></i> Aplicar Filtros
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficos de producción -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Producción por Cultivo</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="produccionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Precio del Mercado</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="algodonChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráfico de viabilidad -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Viabilidad de Cultivos</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="viabilidadChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Estadísticas Generales</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6">
-                                <h6>Total de Cultivos</h6>
-                                <p class="h4 text-primary">125</p>
-                            </div>
-                            <div class="col-6">
-                                <h6>Ingresos Totales</h6>
-                                <p class="h4 text-success">$145,000</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% if user.tipo == 'agricultor' %}
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5>Mis Solicitudes Recientes</h5>
-                </div>
-                <div class="card-body">
-                    {% if solicitudes_recientes %}
-                        <ul class="list-group">
-                            {% for solicitud in solicitudes_recientes %}
-                                <li class="list-group-item">
-                                    <strong>{{ solicitud.cultivo_deseado }}</strong> - 
-                                    {{ solicitud.fecha|date:"d/m/Y" }} - 
-                                    <span class="badge bg-{% if solicitud.estado == 'procesada' %}success{% else %}warning{% endif %}">
-                                        {{ solicitud.estado }}
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">No tienes solicitudes recientes.</p>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        // Initialize the trends chart
-        function initializeTendenciasChart() {
-            const ctx = document.getElementById('tendenciasChart').getContext('2d');
-            const tendenciasChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [], // Aquí se llenarán las semanas
-                    datasets: [{
-                        label: 'Cantidad de Productos',
-                        data: [], // Aquí se llenarán las cantidades
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Semanas'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Cantidad de Productos'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Aquí se llenarán los datos del gráfico
-            window.actualizarGraficoTendencias = function(tendenciasData) {
-                tendenciasChart.data.labels = tendenciasData.semanas; // Asignar semanas
-                tendenciasChart.data.datasets[0].data = tendenciasData.cantidades; // Asignar cantidades
-                tendenciasChart.update();
-            }
-        }
-    </script>
+    <!-- Filtros para gráficas -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Filtros de Mercado</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filtrosForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="municipio" class="form-label">Municipio</label>
+                            <select class="form-select" id="municipio" name="municipio">
+                                <option value="">Todos los municipios</option>
+                                <option value="Facatativá">Facatativá</option>
+                                <option value="Madrid">Madrid</option>
+                                <option value="Mosquera">Mosquera</option>
+                                <option value="Funza">Funza</option>
+                                <option value="Bogotá">Bogotá</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="producto" class="form-label">Producto</label>
+                            <select class="form-select" id="producto" name="producto">
+                                <option value="">Todos los productos</option>
+                                <option value="PAPA CRIOLLA">Papa Criolla</option>
+                                <option value="PAPA PASTUSA">Papa Pastusa</option>
+                                <option value="ZANAHORIA">Zanahoria</option>
+                                <option value="CEBOLLA CABEZONA">Cebolla Cabezona</option>
+                                <option value="TOMATE">Tomate</option>
+                                <option value="LECHUGA">Lechuga</option>
+                                <option value="REPOLLO">Repollo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos de producción -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Producción por Cultivo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="produccionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Precio del Mercado</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="algodonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de viabilidad -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Viabilidad de Cultivos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="viabilidadChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Estadísticas Generales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>Total de Cultivos</h6>
+                            <p class="h4 text-primary">125</p>
+                        </div>
+                        <div class="col-6">
+                            <h6>Ingresos Totales</h6>
+                            <p class="h4 text-success">$145,000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     // Variables globales para almacenar filtros actuales
     let filtrosActuales = {
@@ -307,9 +218,62 @@
     function actualizarGraficos(data) {
         console.log('Actualizando gráficos con datos:', data);
         
-        // Gráfico de tendencias de productos
-        if (data.tendencias && Object.keys(data.tendencias).length > 0) {
-            actualizarGraficoTendencias(data.tendencias);
+        // Gráfico de tendencias de precios
+        if (data.precios_tendencia && Object.keys(data.precios_tendencia).length > 0) {
+            const ctx = document.getElementById('produccionChart').getContext('2d');
+            if (window.produccionChart) {
+                window.produccionChart.destroy();
+            }
+            
+            const productos = Object.keys(data.precios_tendencia);
+            const precios = productos.map(producto => data.precios_tendencia[producto].ultimo_precio);
+            const tendencias = productos.map(producto => data.precios_tendencia[producto].tendencia);
+            
+            window.produccionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: productos,
+                    datasets: [{
+                        label: 'Precios Actuales (COP)',
+                        data: precios,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const producto = productos[context.dataIndex];
+                                    const tendencia = tendencias[context.dataIndex];
+                                    const variacion = data.precios_tendencia[producto].variacion_porcentaje;
+                                    return `${context.dataset.label}: ${context.parsed.y} COP (${tendencia}, ${variacion}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Precio (COP)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Productos'
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Gráfico de evolución de precios (usando algodonChart)
@@ -433,9 +397,6 @@
 
     // Inicializar gráficos
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar gráfico de tendencias
-        initializeTendenciasChart();
-        
         // Iniciar actualización automática
         actualizarDatosDashboard();
         

@@ -48,17 +48,7 @@
 
     <!-- Gráfico de cultivos populares -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Cultivos más Populares</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="cultivosChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
                     <h5>Actividad Reciente</h5>
@@ -76,7 +66,6 @@
                             </thead>
                             <tbody>
                                 {% for solicitud in ultimas_solicitudes %}
-                                <tr>
                                     <td>{{ solicitud.agricultor.username }}</td>
                                     <td>{{ solicitud.cultivo_deseado }}</td>
                                     <td>{{ solicitud.fecha|date:"d/m/Y" }}</td>
@@ -85,8 +74,8 @@
                                             {{ solicitud.estado }}
                                         </span>
                                     </td>
-                                </tr>
                                 {% endfor %}
+
                             </tbody>
                         </table>
                     </div>
@@ -131,28 +120,4 @@
     </div>
 </div>
 
-<script>
-// Gráfico de cultivos populares
-const ctx = document.getElementById('cultivosChart').getContext('2d');
-const cultivosChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: [{% for cultivo in cultivos_populares %}'{{ cultivo.cultivo_deseado }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-        datasets: [{
-            data: [{% for cultivo in cultivos_populares %}{{ cultivo.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
-            backgroundColor: [
-                '#FF6384',
-                '#36A2EB',
-                '#FFCE56',
-                '#4BC0C0',
-                '#9966FF'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
-</script>
 {% endblock %}

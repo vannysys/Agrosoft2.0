@@ -14,10 +14,15 @@
 - [x] Agregar debug para diagnóstico de recuperación de contraseña
 - [x] Corregir sintaxis en URLs de cambiar contraseña
 - [x] Crear base.html template con navbar
-- [x] Actualizar recomendaciones.html para extender de base.html
-- [x] Actualizar home.html para extender de base.html
+- [x] Update recomendaciones.html para extender de base.html
+- [x] Update home.html para extend de base.html
 - [x] Agregar funcionalidad de cierre de sesión en la navbar
 - [x] Arreglar errores de sintaxis de JavaScript en home.html
+- [x] Fix JavaScript error in dashboard.html
+  - Removed duplicate canvas element with ID "tendenciasChart"
+  - Fixed JavaScript syntax error by properly initializing trends chart
+  - Added proper function call to initializeTendenciasChart() in DOMContentLoaded event
+  - Fixed typo in backgroundColor property (rgarea -> rgba)
 
 ## Pending Tasks
 - [ ] Resolver problema de actualización de contraseña en base de datos

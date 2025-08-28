@@ -5,153 +5,202 @@
 
 {% block extra_css %}
 <style>
+    /* 🎨 HERO */
     .hero-section {
-        background: linear-gradient(135deg, #2E7D32 0%, #388E3C 50%, #4CAF50 100%);
+        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #66BB6A 100%);
         color: white;
-        padding: 80px 0;
+        padding: 100px 20px;
         text-align: center;
         margin: -25px -25px 50px -25px;
         position: relative;
         overflow: hidden;
     }
-    
+
     .hero-section::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        opacity: 0.3;
-        pointer-events: none; /* ✅ Esto evita que bloquee clics */
+        inset: 0;
+        background: url('https://www.transparenttextures.com/patterns/food.png');
+        opacity: 0.1;
+        animation: floatBg 30s infinite linear;
     }
-    
+
+    @keyframes floatBg {
+        from { background-position: 0 0; }
+        to { background-position: 1000px 1000px; }
+    }
+
     .hero-title {
-        font-size: 3.5rem;
-        font-weight: 700;
+        font-size: 3.8rem;
+        font-weight: 800;
         margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        animation: fadeInDown 1s ease;
     }
-    
+
     .hero-subtitle {
-        font-size: 1.5rem;
-        margin-bottom: 30px;
+        font-size: 1.6rem;
+        margin-bottom: 40px;
         opacity: 0.95;
+        animation: fadeInUp 1.2s ease;
     }
-    
+
     .hero-buttons {
-        margin-top: 30px;
+        margin-top: 20px;
+        animation: fadeInUp 1.4s ease;
     }
-    
+
     .btn-hero {
-        padding: 15px 30px;
+        padding: 15px 35px;
         font-size: 1.1rem;
         font-weight: 600;
         border-radius: 50px;
-        margin: 0 10px;
+        margin: 10px;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
-    
+
+    .btn-hero::after {
+        content: "";
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: rgba(255,255,255,0.3);
+        transition: left 0.4s ease;
+    }
+
+    .btn-hero:hover::after {
+        left: 100%;
+    }
+
     .btn-primary-hero {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.15);
         border: 2px solid white;
         color: white;
     }
-    
+
     .btn-primary-hero:hover {
         background: white;
         color: #2E7D32;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.3);
     }
-    
+
     .btn-outline-hero {
         border: 2px solid white;
         color: white;
         background: transparent;
     }
-    
+
     .btn-outline-hero:hover {
         background: white;
         color: #2E7D32;
-        transform: translateY(-2px);
     }
-    
+
+    /* ✨ FEATURES */
     .features-section {
-        padding: 80px 0;
+        padding: 100px 20px;
+        background: #f9f9f9;
     }
-    
+
     .feature-card {
         text-align: center;
-        padding: 30px;
-        border-radius: 15px;
+        padding: 40px 25px;
+        border-radius: 18px;
         background: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
         height: 100%;
     }
-    
+
     .feature-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
     }
-    
+
     .feature-icon {
-        font-size: 3rem;
-        color: #4CAF50;
-        margin-bottom: 20px;
+        font-size: 3.5rem;
+        color: #43A047;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease;
     }
-    
+
+    .feature-card:hover .feature-icon {
+        transform: rotate(10deg) scale(1.1);
+    }
+
     .feature-title {
-        font-size: 1.5rem;
-        font-weight: 600;
+        font-size: 1.6rem;
+        font-weight: 700;
         margin-bottom: 15px;
         color: #2E7D32;
     }
-    
-    .stats-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 60px 0;
-        margin: 50px -25px;
+
+    .text-muted {
+        color: #555 !important;
     }
-    
-    .stat-number {
-        font-size: 3rem;
-        font-weight: 700;
-        color: #2E7D32;
-        margin-bottom: 10px;
-    }
-    
-    .stat-label {
-        font-size: 1.1rem;
-        color: #6c757d;
-    }
-    
+
+    /* 🚀 CTA */
     .cta-section {
-        background: white;
-        padding: 80px 0;
+        background: linear-gradient(135deg, #2E7D32 0%, #388E3C 50%, #66BB6A 100%);
+        padding: 100px 20px;
         text-align: center;
-    }
-    
-    .container-custom {
+        color: white;
+        border-radius: 15px;
+        margin: 50px auto;
         max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2);
     }
-    
+
+    .cta-section h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .cta-section p {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+    }
+
+    .cta-section .btn {
+        border-radius: 50px;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .cta-section .btn:hover {
+        transform: scale(1.05) translateY(-3px);
+    }
+
+    /* 📱 RESPONSIVE */
     @media (max-width: 768px) {
         .hero-title {
-            font-size: 2.5rem;
+            font-size: 2.6rem;
         }
-        
         .hero-subtitle {
             font-size: 1.2rem;
         }
-        
-        .btn-hero {
-            padding: 12px 25px;
-            margin: 10px 5px;
+        .feature-card {
+            padding: 25px;
         }
+        .cta-section h2 {
+            font-size: 2rem;
+        }
+    }
+
+    /* 🎬 Animaciones */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 {% endblock %}
@@ -187,9 +236,7 @@
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="bi bi-lightbulb"></i>
-                    </div>
+                    <div class="feature-icon"><i class="bi bi-lightbulb"></i></div>
                     <h3 class="feature-title">Recomendaciones Inteligentes</h3>
                     <p class="text-muted">Sugerencias de cultivos basadas en clima, mercado y condiciones del suelo para maximizar tu rentabilidad.</p>
                 </div>
@@ -197,9 +244,7 @@
             
             <div class="col-md-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="bi bi-graph-up"></i>
-                    </div>
+                    <div class="feature-icon"><i class="bi bi-graph-up"></i></div>
                     <h3 class="feature-title">Análisis de Mercado</h3>
                     <p class="text-muted">Datos en tiempo real de precios de mercado y tendencias para tomar decisiones informadas.</p>
                 </div>
@@ -207,9 +252,7 @@
             
             <div class="col-md-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="bi bi-cloud-sun"></i>
-                    </div>
+                    <div class="feature-icon"><i class="bi bi-cloud-sun"></i></div>
                     <h3 class="feature-title">Pronóstico Climático</h3>
                     <p class="text-muted">Integración con datos meteorológicos para planificar siembras y cosechas de manera óptima.</p>
                 </div>
@@ -218,13 +261,12 @@
     </div>
 </div>
 
-
 <!-- CTA Section -->
 <div class="cta-section">
     <div class="container-custom">
-        <h2 class="display-5 fw-bold text-success mb-4">¿Listo para transformar tu agricultura?</h2>
-        <p class="lead text-muted mb-4">Únete a cientos de agricultores que ya están maximizando sus cosechas con AgroSoft</p>
-        <a href="{% url 'registro' %}" class="btn btn-success btn-lg px-5 py-3">
+        <h2>¿Listo para transformar tu agricultura?</h2>
+        <p>Únete a cientos de agricultores que ya están maximizando sus cosechas con AgroSoft</p>
+        <a href="{% url 'registro' %}" class="btn btn-light btn-lg">
             <i class="bi bi-rocket-takeoff me-2"></i>Empezar Gratis
         </a>
     </div>

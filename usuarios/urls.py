@@ -18,5 +18,6 @@ urlpatterns = [
     path('admin/produccion-proyectada/', views.produccion_proyectada, name='produccion_proyectada'),
     path('reportes-graficos/', views.reportes_graficos, name='reportes_graficos'),
     
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('', views.home, name='home'),
 ]

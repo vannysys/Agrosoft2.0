@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 {% load static %}
-<head>
-    <title>AgroSoft</title>
+<head><title>InicioSesion</title>
     <link rel="icon" type="logo/png" href="{% static 'img/logo.svg' %}">
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <style>
+      body{
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2rem;
+  background-color: white;
+}
         .contenedor{
   margin: 0;
   padding: 0;
@@ -16,7 +24,7 @@
   justify-content: center;
   align-items: center;
   font-size: 2rem;
-  background: linear-gradient(135deg, #776AE3 0%, #C76AE3 100%);
+  background: linear-gradient(135deg, #776AE3 20%, #00ff08 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -81,10 +89,10 @@
 
 .button-login{
   color: white;
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: rgba(255,255,255,0.2);
+  border: 2px solid white;
   border-radius: 10px;
   font-size: 25px;
-  border: none;
   width: 300px;
   cursor: pointer;
   height: 40px;
@@ -92,8 +100,10 @@
 }
 
 .button-login:hover{
+  background: white;
+  color: #2E7D32;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
 .button-register{
@@ -164,7 +174,7 @@
 </head>
 <body>
     <div class="contenedor">
-        <p class="welcome"> <img class="logo" src="{% static 'img/logo.svg' %}"> Bienvenido a AgroSoft!</p>
+        <p class="welcome">Bienvenido a AgroSoft!</p>
         <div class="login-box">
             <h4>Iniciar sesión</h4>
             {% if error %}

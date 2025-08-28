@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <style>
+    .main-content{background: linear-gradient(135deg, #776AE3 20%, #00ff08 100%);}
     .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .header { text-align: center; color: #2c5530; margin-bottom: 30px; }
     .form-section { background: #e8f5e8; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
@@ -110,9 +111,9 @@
                         <th>📊 Tendencia</th>
                         <th>📦 Presentación</th>
                         <th>⭐ Rentabilidad</th>
-                        <th>🏘️ Factor Municipal</th>
-                        <th>🌡️ Factor Climático</th>
-                        <th>🌤️ Clima Actual</th>
+                        <th>🏘 Factor Municipal</th>
+                        <th>🌡 Factor Climático</th>
+                        <th>🌤 Clima Actual</th>
                         <th>📅 Última Actualización</th>
                     </tr>
                 </thead>
@@ -136,16 +137,16 @@
                         </td>
                         <td>
                             {% if r.clima_factor > 1.1 %}
-                                <span style="color: #4CAF50;">🌡️ Ideal ({{ r.clima_factor|floatformat:2 }}x)</span>
+                                <span style="color: #4CAF50;">🌡 Ideal ({{ r.clima_factor|floatformat:2 }}x)</span>
                             {% elif r.clima_factor < 0.9 %}
-                                <span style="color: #f44336;">❄️ Adverso ({{ r.clima_factor|floatformat:2 }}x)</span>
+                                <span style="color: #f44336;">❄ Adverso ({{ r.clima_factor|floatformat:2 }}x)</span>
                             {% else %}
-                                <span style="color: #ff9800;">🌤️ Adecuado ({{ r.clima_factor|floatformat:2 }}x)</span>
+                                <span style="color: #ff9800;">🌤 Adecuado ({{ r.clima_factor|floatformat:2 }}x)</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if clima %}
-                                <span style="color: #2196F3;">🌡️ {{ clima }}°C</span>
+                                <span style="color: #2196F3;">🌡 {{ clima }}°C</span>
                             {% else %}
                                 <span style="color: #999;">N/A</span>
                             {% endif %}

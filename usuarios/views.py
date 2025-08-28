@@ -457,3 +457,9 @@ def home(request):
         }
         return render(request, "home.html", context)
 
+@login_required
+def dashboard(request):
+    """Vista del dashboard para agricultores"""
+    solicitudes = SolicitudRecomendacion.objects.filter(agricultor=request.user)
+    context = {'solicitudes': solicitudes}
+    return render(request, 'dashboard.html', context)

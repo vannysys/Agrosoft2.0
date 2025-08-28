@@ -20,9 +20,17 @@ class GraficasDataView(View):
             municipio = request.GET.get('municipio', '')
             producto = request.GET.get('producto', '')
             
-            # Obtener datos de precios actuales
-            precios = sipsa_service.obtener_precios_actuales(limit=100)
-            print("Datos de precios antes de aplicar filtros:", len(precios), "registros")
+            # Obtener precios actuales del SIPSA
+            precios = sipsa_service.obtener_precios_actuales()
+            print("Datos de precios obtenidos:", len(precios), "registros")
+            
+            # Obtener recomendaciones para el gráfico de tendencias
+            recomendaciones = sipsa_service.obtener_productos_recomendados()
+            print("Datos de recomendaciones:", recomendaciones)
+            
+            # Procesar datos para el gráfico de tendencias
+            tendencias_data = self._procesar_tendencias(recomendaciones, municipio)
+            print("Datos de tendencias procesados:", tendencias_data)
             
             # Filtrar por municipio si se especifica
             if municipio:
@@ -38,6 +46,9 @@ class GraficasDataView(View):
             
             # Procesar datos para gráficas
             datos_graficas = self._procesar_datos_para_graficas(precios)
+            
+            # Agregar información de tendencias a los datos gráficos
+            datos_graficas['tendencias'] = tendencias_data
             print("Datos gráficos procesados:", datos_graficas)
             
             # Agregar información de filtros aplicados
@@ -51,6 +62,23 @@ class GraficasDataView(View):
             
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+    
+    def _procesar_tendencias(self, recomendaciones, municipio):
+        """
+        Procesa las recomendaciones para generar datos de tendencias.
+        """
+        semanas = []
+        cantidades = []
+        
+        # Simular datos de tendencias basados en recomendaciones
+        for i, recomendacion in enumerate(recomendaciones[:5]):  # Tomar las primeras 5 recomendaciones
+            semanas.append(f"Semana {i+1}")
+            cantidades.append(recomendacion.get('rentabilidad_estimada', 0))
+        
+        return {
+            'semanas': semanas,
+            'cantidades': cantidades
+        }
     
     def _procesar_datos_para_graficas(self, precios):
         """

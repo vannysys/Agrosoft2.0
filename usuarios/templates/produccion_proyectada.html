@@ -1,0 +1,284 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Producción Proyectada - AgroSoft{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4">Producción Proyectada</h1>
+        </div>
+    </div>
+
+    <!-- Selección de producto -->
+    <!-- Filtros para gráficas -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Filtros de Mercado</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filtrosForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="municipio" class="form-label">Municipio</label>
+                            <select class="form-select" id="municipio" name="municipio">
+                                <option value="">Todos los municipios</option>
+                                <option value="Facatativá">Facatativá</option>
+                                <option value="Madrid">Madrid</option>
+                                <option value="Mosquera">Mosquera</option>
+                                <option value="Funza">Funza</option>
+                                <option value="Bogotá">Bogotá</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-group">
+                    <label for="hectareas">Cantidad de hectáreas:</label>
+                    <input type="number" name="hectareas" id="hectareas" class="form-control" value="{{ cantidad_hectareas }}" min="1" step="0.1">
+                </div>
+                <button type="submit" class="btn btn-primary">Calcular Proyección</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Resumen de proyecciones -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Proyectado</h5>
+                    <h2 class="card-text">${{ total_proyectado|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Cultivos Activos</h5>
+                    <h2 class="card-text">{{ total_cultivos }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Rendimiento Promedio</h5>
+                    <h2 class="card-text">{{ rendimiento_promedio|floatformat:2 }} kg</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de puntos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Gráfico de Producción Proyectada</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="graficoProduccion" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de proyecciones -->
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad (kg)</th>
+                        <th>Precio Estimado ($/kg)</th>
+                        <th>Ingreso Proyectado ($)</th>
+                        <th>Rendimiento Estimado (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proyeccion in proyecciones %}
+                    <tr>
+                        <td>{{ proyeccion.producto.cultivo_deseado }}</td>
+                        <td>{{ proyeccion.produccion_total|floatformat:2 }}</td>
+                        <td>${{ proyeccion.precio_unidad|floatformat:2 }}</td>
+                        <td>${{ proyeccion.ingreso_proyectado|floatformat:2 }}</td>
+                        <td>{{ proyeccion.rendimiento_estimado|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay productos seleccionados para proyectar</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 📑 Paginación -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&producto={{ producto_seleccionado }}">Primero</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&producto={{ producto_seleccionado }}">Anterior</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&producto={{ producto_seleccionado }}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&producto={{ producto_seleccionado }}">Último</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Nota sobre la proyección -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Información Importante</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nota:</strong> Los cálculos actuales incluyen:</p>
+                    <ul>
+                        <li>Ingreso proyectado = Cantidad × Precio estimado</li>
+                        <li>Rendimiento estimado = Cantidad × 90% (factor de seguridad)</li>
+                        <li>Los precios son estimados y pueden variar según el mercado</li>
+                        <li>El gráfico muestra la relación entre cantidad e ingreso proyectado por cultivo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para el gráfico de puntos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Variables globales para almacenar filtros actuales
+    let filtrosActuales = {
+        municipio: '',
+        producto: ''
+    };
+
+    // Función para obtener datos en tiempo real con filtros
+    async function actualizarDatosDashboard() {
+        try {
+            // Construir URL con parámetros de filtro
+            const params = new URLSearchParams();
+            if (filtrosActuales.municipio) params.append('municipio', filtrosActuales.municipio);
+            if (filtrosActuales.producto) params.append('producto', filtrosActuales.producto);
+            
+            const url = `/graficas/api/graficas/datos${params.toString() ? '?' + params.toString() : ''}`;
+            
+            console.log('Solicitando datos desde:', url);
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            console.log('Datos recibidos de la API:', data);
+            actualizarGraficos(data);
+            
+            // Actualizar cada 30 segundos
+            setTimeout(actualizarDatosDashboard, 30000);
+        } catch (error) {
+            console.error('Error al actualizar datos:', error);
+            // Mostrar mensaje de error en la interfaz
+            mostrarMensajeError('Error al cargar datos del mercado. Reintentando...');
+            // Reintentar después de 60 segundos en caso de error
+            setTimeout(actualizarDatosDashboard, 60000);
+        }
+    }
+
+    // Manejar envío del formulario de filtros
+    document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Obtener valores de los filtros
+        filtrosActuales.municipio = document.getElementById('municipio').value;
+        filtrosActuales.producto = document.getElementById('producto').value;
+        
+        console.log('Filtros aplicados:', filtrosActuales);
+        
+        // Reiniciar la actualización de datos
+        clearTimeout(window.dashboardTimeout);
+        actualizarDatosDashboard();
+        
+        // Mostrar mensaje de filtro aplicado
+        mostrarMensajeExito('Filtros aplicados correctamente');
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('graficoProduccion').getContext('2d');
+
+        const labels = {{ datos_grafico.labels|safe }};
+        const ingresos = {{ datos_grafico.ingresos|safe }};
+        const cantidades = {{ datos_grafico.cantidades|safe }};
+        const colores = {{ datos_grafico.colores|safe }};
+
+        // Crear puntos {x: cantidad, y: ingreso}
+        const puntos = cantidades.map((cantidad, i) => ({
+            x: cantidad,
+            y: ingresos[i]
+        }));
+
+        const datos = {
+            datasets: [{
+                label: 'Producción Proyectada',
+                data: puntos,
+                backgroundColor: colores,
+                borderColor: colores,
+                pointRadius: 8,
+                pointHoverRadius: 12
+            }]
+        };
+
+        const config = {
+            type: 'scatter',
+            data: datos,
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const i = context.dataIndex;
+                                return `${labels[i]}: ${puntos[i].x} kg → $${puntos[i].y.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Cantidad (kg)' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        title: { display: true, text: 'Ingreso Proyectado ($)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    });
+</script>
+
+{% endblock %}

@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from datetime import datetime
 from .sipsa_service import SipsaService
 import random
+from usuarios import models as usuarios
 
 def obtener_clima_openweather(ciudad, fecha):
     """
@@ -145,6 +146,16 @@ def recomendar_productos(request):
         # Obtener recomendaciones basadas en municipio, fecha y clima
         recomendaciones = sipsa_service.obtener_productos_recomendados(ciudad, fecha_siembra, clima)
 
+        # Registrar las solicitudes en la base de datos
+        if recomendaciones:
+            for rec in recomendaciones:
+                usuarios.SolicitudRecomendacion.objects.create(
+                    agricultor=request.user if request.user.is_authenticated else None,
+                    municipio=ciudad,
+                    cultivo_deseado=rec['producto'],
+                    estado="pendiente"
+                )
+
         # Obtener estadísticas del mercado
         estadisticas = sipsa_service.obtener_estadisticas_mercado()
 
@@ -182,6 +193,8 @@ def recomendar_productos(request):
             'municipio_seleccionado': ciudad,
             'fecha_proyeccion': fecha_siembra.strftime('%Y-%m-%d'),
         })
+    
+    
 
 def api_precios_sipsa(request):
     """

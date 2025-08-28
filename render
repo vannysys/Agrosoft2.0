@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: agrosoft
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn agrosoft.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: OPENWEATHER_API_KEY
+        value: 3faff5e1a4b40f2e39babbe38f98365e
+      - key: DATABASE_URL
+        fromService:
+          name: agrosoft-db
+          type: postgres
+          property: connectionString
+
+databases:
+  - name: agrosoft-db
+    plan: free
+    databaseName: agrosoft
+    user: agrosoft_user

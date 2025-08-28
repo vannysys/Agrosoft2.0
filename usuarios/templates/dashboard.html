@@ -3,490 +3,452 @@
 
 {% block title %}AgroSoft - Dashboard Principal{% endblock %}
 
+{% block extra_css %}
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+        margin: 20px 0;
+    }
+    
+    .chart-hover-message {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 20;
+        max-width: 250px;
+        display: none;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    
+    .chart-container:hover .chart-hover-message {
+        display: block;
+    }
+    
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 8px;
+    }
+    
+        .card-header {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A, #A5D6A7);
+            color: white;
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A, #A5D6A7);
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .form-select {
+        border-radius: 6px;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 8px;
+    }
+    
+    .spinner-border {
+        color: #667eea;
+    }
+    
+    h2 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 30px;
+    }
+    
+    .lead {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <!-- Contenido para usuarios autenticados -->
     <div class="container" style="max-width: 1200px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px #0001;">
         <h2>Bienvenido de vuelta, {{ user.username }}</h2>
-        <!-- Gráficos de producción -->
+
+<!-- Filtros de Municipio -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Filtrar por Municipio</h5>
+            </div>
+            <div class="card-body">
+                <form id="filtrosForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="municipio" class="form-label">Municipio</label>
+                        <select class="form-select" id="municipio" name="municipio">
+                            <option value="">Todos los municipios</option>
+                            <option value="Facatativá">Facatativá</option>
+                            <option value="Madrid">Madrid</option>
+                            <option value="Mosquera">Mosquera</option>
+                            <option value="El Rosal">El Rosal</option>
+                            <option value="Subachoque">Subachoque</option>
+                            <option value="Bojacá">Bojacá</option>
+                            <option value="Funza">Funza</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Gráficos en columnas -->
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Tendencias de Productos</h5>
+                        <h5><i class="fas fa-chart-bar"></i> Rentabilidad de Productos Recomendados</h5>
+                        <small class="text-light">Productos con mayor potencial de rentabilidad según análisis de mercado</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="reportesSemanalesChart"></canvas>
+                            <div class="chart-hover-message">
+                                <strong>📈 Información:</strong><br>
+                                Esta gráfica muestra la evolución de la cantidad de productos disponibles en el mercado por semana. Ayuda a identificar tendencias de oferta.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> Precios Promedio por Producto</h5>
+                        <small class="text-light">Evolución de precios en el mercado para productos recomendados</small>
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
                             <canvas id="tendenciasChart"></canvas>
+                            <div class="chart-hover-message">
+                                <strong>💰 Información:</strong><br>
+                                Esta gráfica muestra la evolución de los precios promedio en el mercado por semana. Ayuda a identificar tendencias de precios y oportunidades de compra/venta.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Removed duplicate canvas for "Tendencias de Precios" -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        
+
         <p class="lead">Estamos contentos de tenerte de vuelta en AgroSoft</p>
-
-        <!-- Filtros para gráficas -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Filtros de Mercado</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="filtrosForm" class="row g-3">
-                            <div class="col-md-4">
-                                <label for="municipio" class="form-label">Municipio</label>
-                                <select class="form-select" id="municipio" name="municipio">
-                                    <option value="">Todos los municipios</option>
-                                    <option value="Facatativá">Facatativá</option>
-                                    <option value="Madrid">Madrid</option>
-                                    <option value="Mosquera">Mosquera</option>
-                                    <option value="Funza">Funza</option>
-                                    <option value="Bogotá">Bogotá</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="producto" class="form-label">Producto</label>
-                                <select class="form-select" id="producto" name="producto">
-                                    <option value="">Todos los productos</option>
-                                    <option value="PAPA CRIOLLA">Papa Criolla</option>
-                                    <option value="PAPA PASTUSA">Papa Pastusa</option>
-                                    <option value="ZANAHORIA">Zanahoria</option>
-                                    <option value="CEBOLLA CABEZONA">Cebolla Cabezona</option>
-                                    <option value="TOMATE">Tomate</option>
-                                    <option value="LECHUGA">Lechuga</option>
-                                    <option value="REPOLLO">Repollo</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-filter"></i> Aplicar Filtros
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficos de producción -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Producción por Cultivo</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="produccionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Precio del Mercado</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="algodonChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráfico de viabilidad -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Viabilidad de Cultivos</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="viabilidadChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Estadísticas Generales</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6">
-                                <h6>Total de Cultivos</h6>
-                                <p class="h4 text-primary">125</p>
-                            </div>
-                            <div class="col-6">
-                                <h6>Ingresos Totales</h6>
-                                <p class="h4 text-success">$145,000</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% if user.tipo == 'agricultor' %}
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5>Mis Solicitudes Recientes</h5>
-                </div>
-                <div class="card-body">
-                    {% if solicitudes_recientes %}
-                        <ul class="list-group">
-                            {% for solicitud in solicitudes_recientes %}
-                                <li class="list-group-item">
-                                    <strong>{{ solicitud.cultivo_deseado }}</strong> - 
-                                    {{ solicitud.fecha|date:"d/m/Y" }} - 
-                                    <span class="badge bg-{% if solicitud.estado == 'procesada' %}success{% else %}warning{% endif %}">
-                                        {{ solicitud.estado }}
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">No tienes solicitudes recientes.</p>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
-        // Initialize the trends chart
+        let reportesChart = null;
+        let tendenciasChart = null;
+
+                // Initialize the weekly reports chart - GRÁFICA LINEAL SEMANAL
+                function initializeReportesSemanalesChart() {
+                    const ctx = document.getElementById('reportesSemanalesChart').getContext('2d');
+                    reportesChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [], // Semanas (eje X)
+                            datasets: [{
+                                label: 'Gráficos de Tendencias Simples',
+                                data: [], // Cantidad de productos por semana (eje Y)
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: false, // Cambiar a false para gráficas lineales
+                                tension: 0.1, // Ajustar la tensión para líneas más rectas
+                                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Productos'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0,0,0,0.1)'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Cantidad de Productos'
+                                    },
+                                    beginAtZero: true,
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0,0,0,0.1)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(context) {
+                                            return `Producto: ${context[0].label}`;
+                                        },
+                                        label: function(context) {
+                                            return `Cantidad de Productos: ${context.parsed.y}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+        // Initialize the trends chart - GRÁFICA LINEAL DE PRECIOS POR SEMANA
         function initializeTendenciasChart() {
             const ctx = document.getElementById('tendenciasChart').getContext('2d');
-            const tendenciasChart = new Chart(ctx, {
+            tendenciasChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [], // Aquí se llenarán las semanas
+                    labels: [], // Semanas (eje X)
                     datasets: [{
-                        label: 'Cantidad de Productos',
-                        data: [], // Aquí se llenarán las cantidades
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true,
+                        label: 'Precios Promedio',
+                        data: [], // Precios promedio por semana (eje Y)
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false, // Cambiar a false para gráficas lineales
+                        tension: 0.1, // Ajustar la tensión para líneas más rectas
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: {
                             title: {
                                 display: true,
                                 text: 'Semanas'
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.1)'
                             }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'Cantidad de Productos'
+                                text: 'Precio Promedio ($)'
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.1)'
                             }
-                        }
-                    }
-                }
-            });
-            
-            // Aquí se llenarán los datos del gráfico
-            window.actualizarGraficoTendencias = function(tendenciasData) {
-                tendenciasChart.data.labels = tendenciasData.semanas; // Asignar semanas
-                tendenciasChart.data.datasets[0].data = tendenciasData.cantidades; // Asignar cantidades
-                tendenciasChart.update();
-            }
-        }
-    </script>
-    <script>
-    // Variables globales para almacenar filtros actuales
-    let filtrosActuales = {
-        municipio: '',
-        producto: ''
-    };
-
-    // Función para obtener datos en tiempo real con filtros
-    async function actualizarDatosDashboard() {
-        try {
-            // Construir URL con parámetros de filtro
-            const params = new URLSearchParams();
-            if (filtrosActuales.municipio) params.append('municipio', filtrosActuales.municipio);
-            if (filtrosActuales.producto) params.append('producto', filtrosActuales.producto);
-            
-            const url = `/graficas/api/graficas/datos${params.toString() ? '?' + params.toString() : ''}`;
-            
-            console.log('Solicitando datos desde:', url);
-            
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
-            }
-            const data = await response.json();
-            
-            console.log('Datos recibidos de la API:', data);
-            actualizarGraficos(data);
-            
-            // Actualizar cada 30 segundos
-            setTimeout(actualizarDatosDashboard, 30000);
-        } catch (error) {
-            console.error('Error al actualizar datos:', error);
-            // Mostrar mensaje de error en la interfaz
-            mostrarMensajeError('Error al cargar datos del mercado. Reintentando...');
-            // Reintentar después de 60 segundos en caso de error
-            setTimeout(actualizarDatosDashboard, 60000);
-        }
-    }
-
-    // Manejar envío del formulario de filtros
-    document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Obtener valores de los filtros
-        filtrosActuales.municipio = document.getElementById('municipio').value;
-        filtrosActuales.producto = document.getElementById('producto').value;
-        
-        console.log('Filtros aplicados:', filtrosActuales);
-        
-        // Reiniciar la actualización de datos
-        clearTimeout(window.dashboardTimeout);
-        actualizarDatosDashboard();
-        
-        // Mostrar mensaje de filtro aplicado
-        mostrarMensajeExito('Filtros aplicados correctamente');
-    });
-
-    function mostrarMensajeExito(mensaje) {
-        // Crear o actualizar elemento de mensaje de éxito
-        let exitoDiv = document.getElementById('exito-mensaje');
-        if (!exitoDiv) {
-            exitoDiv = document.createElement('div');
-            exitoDiv.id = 'exito-mensaje';
-            exitoDiv.className = 'alert alert-success';
-            exitoDiv.style.position = 'fixed';
-            exitoDiv.style.top = '20px';
-            exitoDiv.style.right = '20px';
-            exitoDiv.style.zIndex = '1000';
-            document.body.appendChild(exitoDiv);
-        }
-        exitoDiv.textContent = mensaje;
-        
-        // Ocultar mensaje después de 3 segundos
-        setTimeout(() => {
-            exitoDiv.style.display = 'none';
-        }, 3000);
-    }
-
-    function mostrarMensajeError(mensaje) {
-        // Crear o actualizar elemento de mensaje de error
-        let errorDiv = document.getElementById('error-mensaje');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'error-mensaje';
-            errorDiv.className = 'alert alert-danger';
-            errorDiv.style.position = 'fixed';
-            errorDiv.style.top = '20px';
-            errorDiv.style.right = '20px';
-            errorDiv.style.zIndex = '1000';
-            document.body.appendChild(errorDiv);
-        }
-        errorDiv.textContent = mensaje;
-    }
-
-    function actualizarGraficos(data) {
-        console.log('Actualizando gráficos con datos:', data);
-        
-        // Gráfico de tendencias de productos
-        if (data.tendencias && Object.keys(data.tendencias).length > 0) {
-            actualizarGraficoTendencias(data.tendencias);
-        }
-
-        // Gráfico de evolución de precios (usando algodonChart)
-        if (data.evolucion_precios && Object.keys(data.evolucion_precios).length > 0) {
-            const ctx = document.getElementById('algodonChart').getContext('2d');
-            if (window.algodonChart) {
-                window.algodonChart.destroy();
-            }
-            
-            // Tomar el primer producto para mostrar su evolución
-            const producto = Object.keys(data.evolucion_precios)[0];
-            const evolucion = data.evolucion_precios[producto];
-            
-            window.algodonChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: evolucion.fechas.map(fecha => new Date(fecha).toLocaleDateString()),
-                    datasets: [{
-                        label: `Evolución de ${producto}`,
-                        data: evolucion.precios,
-                        borderColor: '#FF6384',
-                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `Evolución de Precios - ${producto}`
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Precio (COP)'
-                            }
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Fecha'
-                            }
-                        }
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(context) {
+                                            return `Semana: ${context[0].label}`;
+                                        },
+                                        label: function(context) {
+                                            return `Precio Promedio: $${context.parsed.y}`;
+                                        }
+                                    }
+                                }
                     }
                 }
             });
         }
 
-        // Gráfico de viabilidad (usando productos top)
-        if (data.productos_top && data.productos_top.length > 0) {
-            const ctx = document.getElementById('viabilidadChart').getContext('2d');
-            if (window.viabilidadChart) {
-                window.viabilidadChart.destroy();
+        // Load chart data from API
+        async function cargarDatosGraficas(municipio = '') {
+            try {
+                // Show loading state
+                document.querySelector('#reportesSemanalesChart').style.opacity = '0.5';
+                document.querySelector('#tendenciasChart').style.opacity = '0.5';
+
+                // Fetch data from graficas API
+                const url = `/graficas/api/graficas/datos/${municipio ? `?municipio=${encodeURIComponent(municipio)}` : ''}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Datos recibidos:', data);
+
+                // Update reports chart with tendencias data (semanas vs cantidad de productos)
+                if (data.tendencias && data.tendencias.semanas && data.tendencias.cantidad_productos) {
+                    reportesChart.data.labels = data.tendencias.semanas;
+                    reportesChart.data.datasets[0].data = data.tendencias.cantidad_productos;
+                    reportesChart.data.datasets[0].label = `Tendencias Simples - ${data.tendencias.municipio}`;
+                    reportesChart.update();
+                }
+
+                // Update trends chart with price evolution (semanas vs precios promedio)
+                if (data.tendencias && data.tendencias.semanas && data.tendencias.precios_promedio) {
+                    tendenciasChart.data.labels = data.tendencias.semanas;
+                    tendenciasChart.data.datasets[0].data = data.tendencias.precios_promedio;
+                    tendenciasChart.data.datasets[0].label = `Precios Promedio - ${data.tendencias.municipio}`;
+                    tendenciasChart.update();
+                }
+
+                // Load recommendations data
+                await cargarDatosRecomendaciones(municipio);
+
+            } catch (error) {
+                console.error('Error cargando datos de gráficas:', error);
+                
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'alert alert-warning mt-3';
+                errorMsg.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error cargando datos de gráficas. Mostrando datos de ejemplo.
+                `;
+                document.querySelector('.container').appendChild(errorMsg);
+                
+                // Load sample data
+                cargarDatosMuestra();
+            } finally {
+                // Remove loading state
+                document.querySelector('#reportesSemanalesChart').style.opacity = '1';
+                document.querySelector('#tendenciasChart').style.opacity = '1';
             }
-            
-            const productos = data.productos_top.map(item => item.producto);
-            const rentabilidades = data.productos_top.map(item => item.rentabilidad_estimada);
-            
-            window.viabilidadChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: productos,
-                    datasets: [{
-                        label: 'Rentabilidad Estimada (%)',
-                        data: rentabilidades,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Rentabilidad (%)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Productos'
-                            }
-                        }
+        }
+
+        // Load recommendations data
+        async function cargarDatosRecomendaciones(municipio = '') {
+            try {
+                const url = `/graficas/api/graficas/recomendaciones/${municipio ? `?municipio=${encodeURIComponent(municipio)}` : ''}`;
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Datos de recomendaciones:', data);
+                    
+                    // Update charts with recommendations data if available
+                    if (data.recomendaciones && data.recomendaciones.length > 0) {
+                        const recomendaciones = data.recomendaciones.slice(0, 8);
+                        const labels = recomendaciones.map(r => r.producto.substring(0, 15) + (r.producto.length > 15 ? '...' : ''));
+                        const rentabilidades = recomendaciones.map(r => r.rentabilidad_estimada);
+
+                        reportesChart.data.labels = labels;
+                        reportesChart.data.datasets[0].data = rentabilidades;
+                        reportesChart.update();
                     }
                 }
-            });
-        }
-
-        // Actualizar estadísticas generales con datos reales
-        if (data.estadisticas_mercado) {
-            const stats = data.estadisticas_mercado;
-            document.querySelector('.h4.text-primary').textContent = stats.total_productos || '125';
-            document.querySelector('.h4.text-success').textContent = `$${stats.precio_promedio?.toLocaleString() || '145,000'}`;
-            
-            // Actualizar fecha de actualización si existe
-            if (stats.fecha_actualizacion) {
-                let fechaElem = document.getElementById('fecha-actualizacion');
-                if (!fechaElem) {
-                    fechaElem = document.createElement('small');
-                    fechaElem.id = 'fecha-actualizacion';
-                    fechaElem.className = 'text-muted';
-                    fechaElem.style.display = 'block';
-                    fechaElem.style.marginTop = '10px';
-                    document.querySelector('.card-body .row').appendChild(fechaElem);
-                }
-                fechaElem.textContent = `Última actualización: ${stats.fecha_actualizacion}`;
+            } catch (error) {
+                console.error('Error cargando recomendaciones:', error);
             }
         }
-    }
 
-    // Inicializar gráficos
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar gráfico de tendencias
-        initializeTendenciasChart();
-        
-        // Iniciar actualización automática
-        actualizarDatosDashboard();
-        
-        // Mostrar gráficos de carga inicial
-        const ctxProduccion = document.getElementById('produccionChart').getContext('2d');
-        const ctxAlgodon = document.getElementById('algodonChart').getContext('2d');
-        const ctxViabilidad = document.getElementById('viabilidadChart').getContext('2d');
-        
-        // Gráficos de carga inicial
-        window.produccionChart = new Chart(ctxProduccion, {
-            type: 'line',
-            data: {
-                labels: ['Cargando...'],
-                datasets: [{
-                    label: 'Precios Actuales (COP)',
-                    data: [0],
-                    borderColor: '#36A2EB',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    fill: true
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
+        // Load sample data as fallback - DATOS SEMANALES LINEALES
+        function cargarDatosMuestra() {
+            // Sample data for reports chart - Gráficos de tendencias simples por semana
+            const semanas = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'];
+            const cantidadProductos = [8, 12, 10, 15, 18, 20]; // Cantidad de productos por semana
+
+            reportesChart.data.labels = semanas;
+            reportesChart.data.datasets[0].data = cantidadProductos;
+            reportesChart.data.datasets[0].label = 'Tendencias Simples - Datos de Muestra';
+            reportesChart.update();
+
+            // Sample data for trends chart - Precios promedio por semana
+            const preciosPromedio = [1500, 1800, 1600, 2000, 2200, 2100]; // Precios promedio por semana
+
+            tendenciasChart.data.labels = semanas;
+            tendenciasChart.data.datasets[0].data = preciosPromedio;
+            tendenciasChart.data.datasets[0].label = 'Precios Promedio - Datos de Muestra';
+            tendenciasChart.update();
+        }
+
+        // Handle filter form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initializeReportesSemanalesChart();
+            initializeTendenciasChart();
+            
+            // Load initial data
+            cargarDatosGraficas();
+
+            // Handle filter form
+            const filtrosForm = document.getElementById('filtrosForm');
+            if (filtrosForm) {
+                filtrosForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const municipio = document.getElementById('municipio').value;
+                    cargarDatosGraficas(municipio);
+                });
+            }
+
+            // Auto-refresh data every 5 minutes
+            setInterval(() => {
+                const municipio = document.getElementById('municipio').value;
+                cargarDatosGraficas(municipio);
+            }, 300000); // 5 minutes
         });
-        
-        window.algodonChart = new Chart(ctxAlgodon, {
-            type: 'line',
-            data: {
-                labels: ['Cargando...'],
-                datasets: [{
-                    label: 'Evolución de Precios',
-                    data: [0],
-                    borderColor: '#FF6384',
-                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    fill: true
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-        
-        window.viabilidadChart = new Chart(ctxViabilidad, {
-            type: 'bar',
-            data: {
-                labels: ['Cargando...'],
-                datasets: [{
-                    label: 'Rentabilidad Estimada (%)',
-                    data: [0],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    });
     </script>
 {% endblock %}

@@ -15,6 +15,51 @@
         
         <p class="lead">Estamos contentos de tenerte de vuelta en AgroSoft</p>
 
+        <!-- Filtros para gráficas -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Filtros de Mercado</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="filtrosForm" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="municipio" class="form-label">Municipio</label>
+                                <select class="form-select" id="municipio" name="municipio">
+                                    <option value="">Todos los municipios</option>
+                                    <option value="Facatativá">Facatativá</option>
+                                    <option value="Madrid">Madrid</option>
+                                    <option value="Mosquera">Mosquera</option>
+                                    <option value="Funza">Funza</option>
+                                    <option value="Bogotá">Bogotá</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="producto" class="form-label">Producto</label>
+                                <select class="form-select" id="producto" name="producto">
+                                    <option value="">Todos los productos</option>
+                                    <option value="PAPA CRIOLLA">Papa Criolla</option>
+                                    <option value="PAPA PASTUSA">Papa Pastusa</option>
+                                    <option value="ZANAHORIA">Zanahoria</option>
+                                    <option value="CEBOLLA CABEZONA">Cebolla Cabezona</option>
+                                    <option value="TOMATE">Tomate</option>
+                                    <option value="LECHUGA">Lechuga</option>
+                                    <option value="REPOLLO">Repollo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-filter"></i> Aplicar Filtros
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Gráficos de producción -->
         <div class="row mb-4">
             <div class="col-md-6">
@@ -104,41 +149,234 @@
         {% endif %}
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-    // Función para obtener datos en tiempo real
+    // Variables globales para almacenar filtros actuales
+    let filtrosActuales = {
+        municipio: '',
+        producto: ''
+    };
+
+    // Función para obtener datos en tiempo real con filtros
     async function actualizarDatosDashboard() {
         try {
-            const response = await fetch('/api/dashboard-data/');
+            // Construir URL con parámetros de filtro
+            const params = new URLSearchParams();
+            if (filtrosActuales.municipio) params.append('municipio', filtrosActuales.municipio);
+            if (filtrosActuales.producto) params.append('producto', filtrosActuales.producto);
+            
+            const url = `/graficas/api/graficas/datos${params.toString() ? '?' + params.toString() : ''}`;
+            
+            console.log('Solicitando datos desde:', url);
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
             const data = await response.json();
             
+            console.log('Datos recibidos de la API:', data);
             actualizarGraficos(data);
             
             // Actualizar cada 30 segundos
             setTimeout(actualizarDatosDashboard, 30000);
         } catch (error) {
             console.error('Error al actualizar datos:', error);
+            // Mostrar mensaje de error en la interfaz
+            mostrarMensajeError('Error al cargar datos del mercado. Reintentando...');
             // Reintentar después de 60 segundos en caso de error
             setTimeout(actualizarDatosDashboard, 60000);
         }
     }
 
+    // Manejar envío del formulario de filtros
+    document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Obtener valores de los filtros
+        filtrosActuales.municipio = document.getElementById('municipio').value;
+        filtrosActuales.producto = document.getElementById('producto').value;
+        
+        console.log('Filtros aplicados:', filtrosActuales);
+        
+        // Reiniciar la actualización de datos
+        clearTimeout(window.dashboardTimeout);
+        actualizarDatosDashboard();
+        
+        // Mostrar mensaje de filtro aplicado
+        mostrarMensajeExito('Filtros aplicados correctamente');
+    });
+
+    function mostrarMensajeExito(mensaje) {
+        // Crear o actualizar elemento de mensaje de éxito
+        let exitoDiv = document.getElementById('exito-mensaje');
+        if (!exitoDiv) {
+            exitoDiv = document.createElement('div');
+            exitoDiv.id = 'exito-mensaje';
+            exitoDiv.className = 'alert alert-success';
+            exitoDiv.style.position = 'fixed';
+            exitoDiv.style.top = '20px';
+            exitoDiv.style.right = '20px';
+            exitoDiv.style.zIndex = '1000';
+            document.body.appendChild(exitoDiv);
+        }
+        exitoDiv.textContent = mensaje;
+        
+        // Ocultar mensaje después de 3 segundos
+        setTimeout(() => {
+            exitoDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    function mostrarMensajeError(mensaje) {
+        // Crear o actualizar elemento de mensaje de error
+        let errorDiv = document.getElementById('error-mensaje');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'error-mensaje';
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '20px';
+            errorDiv.style.right = '20px';
+            errorDiv.style.zIndex = '1000';
+            document.body.appendChild(errorDiv);
+        }
+        errorDiv.textContent = mensaje;
+    }
+
     function actualizarGraficos(data) {
-        // Gráfico de producción por cultivo
-        if (data.produccionPorCultivo && data.produccionPorCultivo.labels.length > 0) {
+        console.log('Actualizando gráficos con datos:', data);
+        
+        // Gráfico de tendencias de precios
+        if (data.precios_tendencia && Object.keys(data.precios_tendencia).length > 0) {
             const ctx = document.getElementById('produccionChart').getContext('2d');
             if (window.produccionChart) {
                 window.produccionChart.destroy();
             }
+            
+            const productos = Object.keys(data.precios_tendencia);
+            const precios = productos.map(producto => data.precios_tendencia[producto].ultimo_precio);
+            const tendencias = productos.map(producto => data.precios_tendencia[producto].tendencia);
+            
             window.produccionChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.produccionPorCultivo.labels,
+                    labels: productos,
                     datasets: [{
-                        label: 'Producción (kg)',
-                        data: data.produccionPorCultivo.data,
+                        label: 'Precios Actuales (COP)',
+                        data: precios,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const producto = productos[context.dataIndex];
+                                    const tendencia = tendencias[context.dataIndex];
+                                    const variacion = data.precios_tendencia[producto].variacion_porcentaje;
+                                    return `${context.dataset.label}: ${context.parsed.y} COP (${tendencia}, ${variacion}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Precio (COP)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Productos'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de evolución de precios (usando algodonChart)
+        if (data.evolucion_precios && Object.keys(data.evolucion_precios).length > 0) {
+            const ctx = document.getElementById('algodonChart').getContext('2d');
+            if (window.algodonChart) {
+                window.algodonChart.destroy();
+            }
+            
+            // Tomar el primer producto para mostrar su evolución
+            const producto = Object.keys(data.evolucion_precios)[0];
+            const evolucion = data.evolucion_precios[producto];
+            
+            window.algodonChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: evolucion.fechas.map(fecha => new Date(fecha).toLocaleDateString()),
+                    datasets: [{
+                        label: `Evolución de ${producto}`,
+                        data: evolucion.precios,
                         borderColor: '#FF6384',
-                        fill: false,
-                        tension: 0.1
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Evolución de Precios - ${producto}`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Precio (COP)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de viabilidad (usando productos top)
+        if (data.productos_top && data.productos_top.length > 0) {
+            const ctx = document.getElementById('viabilidadChart').getContext('2d');
+            if (window.viabilidadChart) {
+                window.viabilidadChart.destroy();
+            }
+            
+            const productos = data.productos_top.map(item => item.producto);
+            const rentabilidades = data.productos_top.map(item => item.rentabilidad_estimada);
+            
+            window.viabilidadChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: productos,
+                    datasets: [{
+                        label: 'Rentabilidad Estimada (%)',
+                        data: rentabilidades,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -147,9 +385,16 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            max: 100,
                             title: {
                                 display: true,
-                                text: 'Cantidad (kg)'
+                                text: 'Rentabilidad (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Productos'
                             }
                         }
                     }
@@ -157,50 +402,81 @@
             });
         }
 
-        // Gráfico de viabilidad
-        if (data.viabilidadData && data.viabilidadData.labels.length > 0) {
-            const ctx3 = document.getElementById('viabilidadChart').getContext('2d');
-            if (window.viabilidadChart) {
-                window.viabilidadChart.destroy();
-            }
-            window.viabilidadChart = new Chart(ctx3, {
-                type: 'pie',
-                data: {
-                    labels: data.viabilidadData.labels,
-                    datasets: [{
-                        data: data.viabilidadData.data,
-                        backgroundColor: [
-                            '#4BC0C0', '#FFCE56', '#FF6384', '#36A2EB', '#9966FF'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+        // Actualizar estadísticas generales con datos reales
+        if (data.estadisticas_mercado) {
+            const stats = data.estadisticas_mercado;
+            document.querySelector('.h4.text-primary').textContent = stats.total_productos || '125';
+            document.querySelector('.h4.text-success').textContent = `$${stats.precio_promedio?.toLocaleString() || '145,000'}`;
+            
+            // Actualizar fecha de actualización si existe
+            if (stats.fecha_actualizacion) {
+                let fechaElem = document.getElementById('fecha-actualizacion');
+                if (!fechaElem) {
+                    fechaElem = document.createElement('small');
+                    fechaElem.id = 'fecha-actualizacion';
+                    fechaElem.className = 'text-muted';
+                    fechaElem.style.display = 'block';
+                    fechaElem.style.marginTop = '10px';
+                    document.querySelector('.card-body .row').appendChild(fechaElem);
                 }
-            });
+                fechaElem.textContent = `Última actualización: ${stats.fecha_actualizacion}`;
+            }
         }
     }
 
-    // Inicializar gráficos con datos estáticos iniciales
+    // Inicializar gráficos
     document.addEventListener('DOMContentLoaded', function() {
-        // Datos iniciales (pueden ser reemplazados por la API)
-        const datosIniciales = {
-            produccionPorCultivo: {
-                labels: ['Maíz', 'Frijol', 'Arroz'],
-                data: [500, 300, 200]
-            },
-            viabilidadData: {
-                labels: ['Alta', 'Media', 'Baja'],
-                data: [60, 30, 10]
-            }
-        };
-        
-        actualizarGraficos(datosIniciales);
-        
         // Iniciar actualización automática
         actualizarDatosDashboard();
+        
+        // Mostrar gráficos de carga inicial
+        const ctxProduccion = document.getElementById('produccionChart').getContext('2d');
+        const ctxAlgodon = document.getElementById('algodonChart').getContext('2d');
+        const ctxViabilidad = document.getElementById('viabilidadChart').getContext('2d');
+        
+        // Gráficos de carga inicial
+        window.produccionChart = new Chart(ctxProduccion, {
+            type: 'line',
+            data: {
+                labels: ['Cargando...'],
+                datasets: [{
+                    label: 'Precios Actuales (COP)',
+                    data: [0],
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+        
+        window.algodonChart = new Chart(ctxAlgodon, {
+            type: 'line',
+            data: {
+                labels: ['Cargando...'],
+                datasets: [{
+                    label: 'Evolución de Precios',
+                    data: [0],
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+        
+        window.viabilidadChart = new Chart(ctxViabilidad, {
+            type: 'bar',
+            data: {
+                labels: ['Cargando...'],
+                datasets: [{
+                    label: 'Rentabilidad Estimada (%)',
+                    data: [0],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     });
     </script>
 {% endblock %}
